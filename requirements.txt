@@ -1,4 +1,3 @@
 berserk
-chess
-chess-engine
+python-chess
 flask
