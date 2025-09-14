@@ -1,3 +1,4 @@
 berserk
 python-chess
 flask
+stockfish
