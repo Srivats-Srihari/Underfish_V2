@@ -10,8 +10,9 @@ import os
 # === CONFIGURATION ===
 import chess.engine
 
-STOCKFISH_PATH = "/opt/render/project/src/.venv/bin/stockfish"  # PyPI-installed stockfish
+STOCKFISH_PATH = "./stockfish"  # downloaded binary
 engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
+
 
 token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
 
