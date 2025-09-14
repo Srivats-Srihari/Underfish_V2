@@ -4,10 +4,8 @@ import chess.engine
 import threading
 import time
 import random
-from keep_alive import keep_alive
-import os
 
-keep_alive()
+import os
 
 # === CONFIGURATION ===
 STOCKFISH_PATH = r"./stockfish-ubuntu-x86-64-avx2"
