@@ -5,8 +5,20 @@ services:
     plan: free
     buildCommand: |
       pip install -r requirements.txt
-      curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.tar
-      tar -xvf stockfish.tar.gz
-      mv stockfish-ubuntu-x86-64-avx2/stockfish ./stockfish
+      # Try downloading AVX2 first
+      curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-16.1-linux_x64_avx2.tar || true
+      if [ -f stockfish.tar.gz ]; then
+        tar -xvf stockfish.tar.gz
+        if [ -d stockfish-16.1-linux_x64_avx2 ]; then
+          mv stockfish-16.1-linux_x64_avx2/stockfish ./stockfish
+        fi
+      fi
+      # If AVX2 failed, fallback to generic build
+      if [ ! -f ./stockfish ]; then
+        curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-16.1-linux_x64.tar
+        tar -xvf stockfish.tar.gz
+        mv stockfish-16.1-linux_x64/stockfish ./stockfish
+      fi
       chmod +x ./stockfish
     startCommand: python main.py
+
