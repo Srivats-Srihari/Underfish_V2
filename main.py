@@ -8,7 +8,7 @@ import random
 import os
 
 # === CONFIGURATION ===
-STOCKFISH_PATH = r"./stockfish-ubuntu-x86-64-avx2"
+STOCKFISH_PATH = r"stockfish"
 token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
 
 # === SETUP ===
