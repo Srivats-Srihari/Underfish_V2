@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 
 port = int(os.environ.get("PORT", 5000))
-app.run(host="0.0.0.0", port=port)
+
 
 # === CONFIGURATION ===
 import chess.engine
@@ -316,3 +316,4 @@ if __name__ == "__main__":
         print("Shutting down bot...")
     finally:
         engine.quit()
+app.run(host="0.0.0.0", port=port)
