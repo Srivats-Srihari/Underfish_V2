@@ -2,13 +2,12 @@ import berserk
 import chess
 import time
 import random
+import os
 # === CONFIGURATION ===
 import chess.engine
 from stockfish import Stockfish
-stockfish = Stockfish(parameters={"Threads": 2, "Minimum Thinking Time": 30})
-
+STOCKFISH_PATH = os.path.join(os.path.dirname(__file__), "stockfish")
 engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
-
 
 token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
 
