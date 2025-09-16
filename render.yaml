@@ -9,7 +9,7 @@ services:
       curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-16.1-linux_x64.tar
       tar -xvf stockfish.tar.gz
       mv stockfish-16.1-linux_x64/stockfish ./stockfish
-      chmod +x ./stockfish
+      chmod +x ./stockfish-ubuntu-x86-64-avx2
 
     startCommand: python main.py
 
