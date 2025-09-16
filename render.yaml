@@ -1,15 +1,16 @@
 services:
   - type: web
-    name: underfish-v2
+    name: underfish-bot
     env: python
     plan: free
-
     buildCommand: |
       pip install -r requirements.txt
-      curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-16.1-linux_x64.tar
-      tar -xvf stockfish.tar.gz
-      mv stockfish-16.1-linux_x64/stockfish ./stockfish
-      chmod +x ./stockfish-ubuntu-x86-64-avx2
+      chmod +x stockfish-ubuntu-x86-64-avx2
+    startCommand: python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.4
+
 
     startCommand: python main.py
 
