@@ -7,8 +7,6 @@ services:
       pip install -r requirements.txt
       curl -L -o stockfish.tar https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.tar
       tar -xf stockfish.tar
-      chmod +x ./stockfish-ubuntu-x86-64-avx2
+      mv stockfish/* stockfish
+      chmod +x stockfish
     startCommand: python main.py
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.13.4
