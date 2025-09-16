@@ -4,8 +4,9 @@ import time
 import random
 # === CONFIGURATION ===
 import chess.engine
+from stockfish import Stockfish
+stockfish = Stockfish(parameters={"Threads": 2, "Minimum Thinking Time": 30})
 
-STOCKFISH_PATH = "./stockfish"  # downloaded binary
 engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
 
 
