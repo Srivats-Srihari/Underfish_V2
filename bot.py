@@ -7,7 +7,9 @@ import os
 import chess.engine
 from stockfish import Stockfish
 
-stockfish = Stockfish()
+stockfish = Stockfish(path="./stockfish")
+
+
 
 token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
 
