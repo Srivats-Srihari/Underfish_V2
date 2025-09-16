@@ -5,9 +5,8 @@ services:
     plan: free
     buildCommand: |
       pip install -r requirements.txt
-      curl -L -o stockfish.tar https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.tar
-      tar -xf stockfish.tar
-      # move the binary into the root so ./stockfish works
+      curl -L -o stockfish.tar.gz https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.tar
+      tar -xzf stockfish.tar.gz
       mv stockfish*/stockfish stockfish
       chmod +x stockfish
     startCommand: python main.py
