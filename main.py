@@ -106,9 +106,9 @@ def _get_cp_and_mate_from_info(info, perspective_color):
 def pick_worst_survivable_move(board: chess.Board,
                                engine,
                                eval_depth: int = 10,
-                               max_mate_depth: int = 20,
-                               cp_cap_one_move: int = 950,
-                               cp_cap_total: int = -1300):
+                               max_mate_depth: int = 25,
+                               cp_cap_one_move: int = 550,
+                               cp_cap_total: int = -925):
     """
     Return the worst legal move (from the bot's perspective) subject to survivability constraints:
       - never play a move that allows a forced mate against us,
