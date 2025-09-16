@@ -5,8 +5,8 @@ services:
     plan: free
     buildCommand: |
       pip install -r requirements.txt
-      curl -L -o stockfish.zip https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.zip
-      unzip -o stockfish.zip -d .
+      curl -L -o stockfish.tar https://stockfishchess.org/files/stockfish-ubuntu-x86-64-avx2.tar
+      tar -xf stockfish.tar
       chmod +x ./stockfish-ubuntu-x86-64-avx2
     startCommand: python main.py
     envVars:
