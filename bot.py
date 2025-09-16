@@ -6,8 +6,8 @@ import os
 # === CONFIGURATION ===
 import chess.engine
 from stockfish import Stockfish
-STOCKFISH_PATH = os.path.join(os.path.dirname(__file__), "stockfish-ubuntu-x86-64-avx2")
-engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
+
+stockfish = Stockfish()
 
 token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
 
