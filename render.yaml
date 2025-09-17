@@ -9,5 +9,5 @@ services:
       tar -xf stockfish.tar.gz
       mv stockfish-ubuntu-x86-64-avx2/stockfish stockfish
     startCommand: |
-      chmod +x stockfish
+      chmod +x ./stockfish
       python main.py
