@@ -3,20 +3,18 @@ import chess
 import time
 import random
 import os
-# === CONFIGURATION ===
 import chess.engine
-from stockfish import Stockfish
 
-stockfish = Stockfish(path="./stockfish")
+# === CONFIGURATION ===
+STOCKFISH_PATH = "./stockfish"  # our downloaded binary
 
-
-
-token = os.environ["Lichess_token"]  # Your Lichess token stored as an environment secret
+token = os.environ["Lichess_token"]  # Lichess token stored as secret
 
 # === SETUP ===
 session = berserk.TokenSession(token)
 client = berserk.Client(session=session)
 engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
+
 
 # === ENGINE HELPERS ===
 import chess
