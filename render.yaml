@@ -8,5 +8,6 @@ services:
       curl -L -o stockfish.tar.gz https://github.com/official-stockfish/Stockfish/releases/download/sf_16.1/stockfish-ubuntu-x86-64-avx2.tar
       tar -xf stockfish.tar.gz
       mv stockfish-ubuntu-x86-64-avx2/stockfish stockfish
+    startCommand: |
       chmod +x stockfish
-    startCommand: python main.py
+      python main.py
