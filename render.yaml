@@ -4,11 +4,12 @@ services:
     env: python
     plan: free
     buildCommand: |
-    pip install -r requirements.txt
+   pip install -r requirements.txt
 curl -L -o stockfish.tar.xz https://github.com/official-stockfish/Stockfish/releases/download/sf_16.1/stockfish-ubuntu-x86-64-avx2.tar.xz
 tar -xJf stockfish.tar.xz
 mv stockfish-ubuntu-x86-64-avx2/stockfish stockfish
 chmod +x stockfish
+
 
     startCommand: |
       chmod +x ./stockfish
