@@ -1,9 +1,9 @@
 services:
-  - type: worker
+  - type: web
     name: underfish-bot
     env: python
     plan: free
     buildCommand: |
       pip install -r requirements.txt
-      chmod +x ./stockfish/stockfish
+      chmod +x stockfish   # <--- force executable permission
     startCommand: python main.py
