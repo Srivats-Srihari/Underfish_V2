@@ -101,8 +101,8 @@ def _get_cp_and_mate_from_info(info, perspective_color):
 
 def pick_worst_survivable_move(board: chess.Board,
                            engine,
-                           eval_depth: int = 16,
-                           max_mate_depth: int = 25,
+                           eval_depth: int = 12,
+                           max_mate_depth: int = 15,
                            cp_cap_one_move: int = 550,
                            cp_cap_total: int = -925):
     """
