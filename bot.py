@@ -236,56 +236,56 @@ def pick_worst_survivable_move(board: chess.Board,
 
 # === GAME HANDLER ===
 def handle_game(game_id, my_color):
-print(f"[{game_id}] Game handler started.")
-board = chess.Board()
-time.sleep(1)
-game_stream = client.bots.stream_game_state(game_id)
-
-for event in game_stream:
-    print(f"[{game_id}] Event in game stream: {event}")
-
-    if event['type'] in ['gameFull', 'gameState']:
-        state = event.get('state', event)
-        moves = state.get('moves', '')
-        print(f"[{game_id}] Moves so far: {moves}")
-        board = chess.Board()
-        for move in moves.split():
-            board.push_uci(move)
-
-        if board.turn == my_color and not board.is_game_over():
-            print(f"[{game_id}] Thinking...")
-            move = pick_worst_survivable_move(board.copy(), engine)
-            if move:
-                print(f"[{game_id}] Playing move: {move.uci()}")
-                try:
-                    client.bots.make_move(game_id, move.uci())
-                except Exception as e:
-                    print(f"[{game_id}] Failed to make move: {e}")
+    print(f"[{game_id}] Game handler started.")
+    board = chess.Board()
+    time.sleep(1)
+    game_stream = client.bots.stream_game_state(game_id)
+    
+    for event in game_stream:
+        print(f"[{game_id}] Event in game stream: {event}")
+    
+        if event['type'] in ['gameFull', 'gameState']:
+            state = event.get('state', event)
+            moves = state.get('moves', '')
+            print(f"[{game_id}] Moves so far: {moves}")
+            board = chess.Board()
+            for move in moves.split():
+                board.push_uci(move)
+    
+            if board.turn == my_color and not board.is_game_over():
+                print(f"[{game_id}] Thinking...")
+                move = pick_worst_survivable_move(board.copy(), engine)
+                if move:
+                    print(f"[{game_id}] Playing move: {move.uci()}")
+                    try:
+                        client.bots.make_move(game_id, move.uci())
+                    except Exception as e:
+                        print(f"[{game_id}] Failed to make move: {e}")
+                else:
+                    print(f"[{game_id}] No safe move found!")
             else:
-                print(f"[{game_id}] No safe move found!")
-        else:
-            print(f"[{game_id}] Not my turn or game is over.")
+                print(f"[{game_id}] Not my turn or game is over.")
 
 # === MAIN LOOP ===
 def main():
-print("WorstBot is online.")
-for event in client.bots.stream_incoming_events():
-    print(f"Event received: {event}")
-
-    if event['type'] == 'challenge':
-        print("Challenge received.")
-        if event['challenge']['variant']['key'] == 'standard':
-            client.bots.accept_challenge(event['challenge']['id'])
-            print(f"Accepted challenge: {event['challenge']['id']}")
-        else:
-            print("Declined non-standard challenge.")
-            client.bots.decline_challenge(event['challenge']['id'])
-
-    elif event['type'] == 'gameStart':
-        game_id = event['game']['id']
-        my_color_str = event['game']['color']
-        my_color = chess.WHITE if my_color_str == 'white' else chess.BLACK
-        print(f"Game started! Game ID: {game_id}, I am playing as {my_color_str.upper()}")
-        threading.Thread(target=handle_game, args=(game_id, my_color), daemon=True).start()
-
+    print("WorstBot is online.")
+    for event in client.bots.stream_incoming_events():
+        print(f"Event received: {event}")
+    
+        if event['type'] == 'challenge':
+            print("Challenge received.")
+            if event['challenge']['variant']['key'] == 'standard':
+                client.bots.accept_challenge(event['challenge']['id'])
+                print(f"Accepted challenge: {event['challenge']['id']}")
+            else:
+                print("Declined non-standard challenge.")
+                client.bots.decline_challenge(event['challenge']['id'])
+    
+        elif event['type'] == 'gameStart':
+            game_id = event['game']['id']
+            my_color_str = event['game']['color']
+            my_color = chess.WHITE if my_color_str == 'white' else chess.BLACK
+            print(f"Game started! Game ID: {game_id}, I am playing as {my_color_str.upper()}")
+            threading.Thread(target=handle_game, args=(game_id, my_color), daemon=True).start()
+    
 
