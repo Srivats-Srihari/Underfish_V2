@@ -1,9 +1,10 @@
 services:
-  - type: web
+  - type: worker
     name: underfish-bot
     env: python
     plan: free
-    buildCommand: |
-      pip install -r requirements.txt
-      chmod +x stockfish   # <--- force executable permission
+    buildCommand: pip install -r requirements.txt
     startCommand: python main.py
+    envVars:
+      - key: Lichess_token
+        sync: false   # you set this in Render Dashboard manually
