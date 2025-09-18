@@ -26,11 +26,11 @@ engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
 # === ENGINE HELPERS ===
 
 def _get_cp_and_mate_from_info(info, perspective_color):
-"""
-Robustly extract (cp, mate) from an engine info dict for the given perspective_color.
-Returns (cp, mate) where cp is an int or None, mate is int (positive => perspective mates,
-negative => perspective gets mated) or None.
-"""
+    """
+    Robustly extract (cp, mate) from an engine info dict for the given perspective_color.
+    Returns (cp, mate) where cp is an int or None, mate is int (positive => perspective mates,
+    negative => perspective gets mated) or None.
+    """
     score = info.get("score")
     if score is None:
         return None, None
