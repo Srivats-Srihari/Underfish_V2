@@ -31,71 +31,71 @@ Robustly extract (cp, mate) from an engine info dict for the given perspective_c
 Returns (cp, mate) where cp is an int or None, mate is int (positive => perspective mates,
 negative => perspective gets mated) or None.
 """
-score = info.get("score")
-if score is None:
+    score = info.get("score")
+    if score is None:
+        return None, None
+    
+    # Try to get a POV score for the requested color
+    pov_candidates = []
+    
+    # 1) preferred: Score.pov(color) if available
+    try:
+        pov_candidates.append(score.pov(perspective_color))
+    except Exception:
+        pass
+    
+    # 2) Score.white() / Score.black()
+    try:
+        pov_candidates.append(score.white() if perspective_color == chess.WHITE else score.black())
+    except Exception:
+        pass
+    
+    # 3) Score.relative (best-effort fallback)
+    try:
+        pov_candidates.append(score.relative)
+    except Exception:
+        pass
+    
+    # Try each candidate for mate() or score()
+    for pov in pov_candidates:
+        if pov is None:
+            continue
+        # mate check
+        try:
+            if getattr(pov, "is_mate", lambda: False)():
+                # some wrappers support .mate()
+                try:
+                    return None, pov.mate()
+                except Exception:
+                    # ignore and try other access patterns
+                    pass
+        except Exception:
+            pass
+    
+        # cp check
+        try:
+            if getattr(pov, "score", None) is not None:
+                cp = pov.score(mate_score=100000)
+                return cp, None
+        except Exception:
+            pass
+    
+    # Final fallback: parse string form (very last resort)
+    try:
+        s = str(score)
+        # look for "#3" style mate or numeric cp
+        mate_match = re.search(r"#\s*([+-]?\d+)", s)
+        if mate_match:
+            m = int(mate_match.group(1))
+            return None, m
+        num_match = re.search(r"([-+]?\d+)", s)
+        if num_match:
+            return int(num_match.group(1)), None
+    except Exception:
+        pass
+    
     return None, None
-
-# Try to get a POV score for the requested color
-pov_candidates = []
-
-# 1) preferred: Score.pov(color) if available
-try:
-    pov_candidates.append(score.pov(perspective_color))
-except Exception:
-    pass
-
-# 2) Score.white() / Score.black()
-try:
-    pov_candidates.append(score.white() if perspective_color == chess.WHITE else score.black())
-except Exception:
-    pass
-
-# 3) Score.relative (best-effort fallback)
-try:
-    pov_candidates.append(score.relative)
-except Exception:
-    pass
-
-# Try each candidate for mate() or score()
-for pov in pov_candidates:
-    if pov is None:
-        continue
-    # mate check
-    try:
-        if getattr(pov, "is_mate", lambda: False)():
-            # some wrappers support .mate()
-            try:
-                return None, pov.mate()
-            except Exception:
-                # ignore and try other access patterns
-                pass
-    except Exception:
-        pass
-
-    # cp check
-    try:
-        if getattr(pov, "score", None) is not None:
-            cp = pov.score(mate_score=100000)
-            return cp, None
-    except Exception:
-        pass
-
-# Final fallback: parse string form (very last resort)
-try:
-    s = str(score)
-    # look for "#3" style mate or numeric cp
-    mate_match = re.search(r"#\s*([+-]?\d+)", s)
-    if mate_match:
-        m = int(mate_match.group(1))
-        return None, m
-    num_match = re.search(r"([-+]?\d+)", s)
-    if num_match:
-        return int(num_match.group(1)), None
-except Exception:
-    pass
-
-return None, None
-
+    
 
 def pick_worst_survivable_move(board: chess.Board,
                            engine,
