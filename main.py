@@ -6,6 +6,7 @@ import os
 import chess.engine
 import re
 import threading
+from flask import Flask
 
 # === CONFIGURATION ===
 STOCKFISH_PATH = "./stockfish"  # our downloaded binary
@@ -15,7 +16,6 @@ token = os.environ["Lichess_token"]  # Lichess token stored as secret
 session = berserk.TokenSession(token)
 client = berserk.Client(session=session)
 engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
-
 
 # === ENGINE HELPERS ===
 def _get_cp_and_mate_from_info(info, perspective_color):
@@ -48,7 +48,6 @@ def _get_cp_and_mate_from_info(info, perspective_color):
                     pass
         except Exception:
             pass
-
         try:
             if getattr(pov, "score", None) is not None:
                 cp = pov.score(mate_score=100000)
@@ -88,7 +87,7 @@ def pick_worst_survivable_move(board: chess.Board,
             best_info = engine.analyse(board, chess.engine.Limit(depth=eval_depth), multipv=1)
             return best_info[0]["pv"][0]
         except Exception as e:
-            print("⚠️ Engine failed to return best move in check:", e)
+            print("⚠️ Engine failed in check:", e)
             return random.choice(legal_moves)
 
     try:
@@ -97,7 +96,7 @@ def pick_worst_survivable_move(board: chess.Board,
         if cur_cp is None:
             cur_cp = 0
     except Exception as e:
-        print("⚠️ Engine error obtaining current eval:", e)
+        print("⚠️ Engine error obtaining eval:", e)
         cur_cp = 0
 
     move_candidates = []
@@ -108,7 +107,6 @@ def pick_worst_survivable_move(board: chess.Board,
     for move in legal_moves:
         temp = board.copy()
         temp.push(move)
-
         try:
             info = engine.analyse(temp, chess.engine.Limit(depth=max_mate_depth))
         except Exception as e:
@@ -124,7 +122,7 @@ def pick_worst_survivable_move(board: chess.Board,
                 continue
             else:
                 mate_losses += 1
-                print(f"⛔ Skipping {move.uci()} — leads to mate in {abs(mate_after)}")
+                print(f"⛔ Skipping {move.uci()} — mate in {abs(mate_after)}")
                 continue
 
         if cp_after is None:
@@ -133,7 +131,7 @@ def pick_worst_survivable_move(board: chess.Board,
 
         drop = cur_cp - cp_after
         if drop > cp_cap_one_move:
-            print(f"🚫 Skipping {move.uci()} — one-move drop {drop} cp > {cp_cap_one_move}")
+            print(f"🚫 Skipping {move.uci()} — drop {drop} > {cp_cap_one_move}")
             continue
 
         move_candidates.append((cp_after, move))
@@ -143,18 +141,18 @@ def pick_worst_survivable_move(board: chess.Board,
         return winning_mate_move
 
     if mate_losses / total > 0.25:
-        print(f"⚠️ {mate_losses}/{total} moves lead to mate (>25%) — play best move.")
+        print(f"⚠️ {mate_losses}/{total} moves mate us — survival mode.")
         try:
             best_info = engine.analyse(board, chess.engine.Limit(depth=eval_depth), multipv=1)
             return best_info[0]["pv"][0]
-        except Exception as e:
-            print("⚠️ Engine failed to give best move, falling back to candidate/worst:", e)
+        except Exception:
+            return random.choice(legal_moves)
 
     try:
         pos_info = engine.analyse(board, chess.engine.Limit(depth=eval_depth))
         pos_cp, pos_mate = _get_cp_and_mate_from_info(pos_info, bot_color)
         if pos_cp is not None and pos_cp < -1250:
-            print(f"🚨 Current pos eval {pos_cp} < -1500 — survival mode: play best move.")
+            print(f"🚨 Eval {pos_cp} < -1500 — survival mode.")
             best_info = engine.analyse(board, chess.engine.Limit(depth=eval_depth), multipv=1)
             return best_info[0]["pv"][0]
     except Exception:
@@ -162,10 +160,10 @@ def pick_worst_survivable_move(board: chess.Board,
 
     if move_candidates:
         worst = min(move_candidates, key=lambda x: x[0])[1]
-        print(f"🤡 Picking worst survivable move: {worst.uci()}")
+        print(f"🤡 Worst survivable move: {worst.uci()}")
         return worst
 
-    print("‼️ No survivable candidates — falling back to best/legal move.")
+    print("‼️ No survivable candidates — best fallback.")
     try:
         best_info = engine.analyse(board, chess.engine.Limit(depth=eval_depth), multipv=1)
         return best_info[0]["pv"][0]
@@ -181,12 +179,12 @@ def handle_game(game_id, my_color):
     game_stream = client.bots.stream_game_state(game_id)
 
     for event in game_stream:
-        print(f"[{game_id}] Event in game stream: {event}")
+        print(f"[{game_id}] Event: {event}")
 
         if event['type'] in ['gameFull', 'gameState']:
             state = event.get('state', event)
             moves = state.get('moves', '')
-            print(f"[{game_id}] Moves so far: {moves}")
+            print(f"[{game_id}] Moves: {moves}")
             board = chess.Board()
             for move in moves.split():
                 board.push_uci(move)
@@ -195,22 +193,22 @@ def handle_game(game_id, my_color):
                 print(f"[{game_id}] Thinking...")
                 move = pick_worst_survivable_move(board.copy(), engine)
                 if move:
-                    print(f"[{game_id}] Playing move: {move.uci()}")
+                    print(f"[{game_id}] Playing: {move.uci()}")
                     try:
                         client.bots.make_move(game_id, move.uci())
                     except Exception as e:
-                        print(f"[{game_id}] Failed to make move: {e}")
+                        print(f"[{game_id}] Move failed: {e}")
                 else:
-                    print(f"[{game_id}] No safe move found!")
+                    print(f"[{game_id}] No safe move.")
             else:
-                print(f"[{game_id}] Not my turn or game is over.")
+                print(f"[{game_id}] Not my turn or game over.")
 
 
 # === MAIN LOOP ===
 def main():
     print("WorstBot is online.")
     for event in client.bots.stream_incoming_events():
-        print(f"Event received: {event}")
+        print(f"Event: {event}")
 
         if event['type'] == 'challenge':
             print("Challenge received.")
@@ -225,11 +223,18 @@ def main():
             game_id = event['game']['id']
             my_color_str = event['game']['color']
             my_color = chess.WHITE if my_color_str == 'white' else chess.BLACK
-            print(f"Game started! Game ID: {game_id}, I am playing as {my_color_str.upper()}")
+            print(f"Game started! ID: {game_id}, Color: {my_color_str.upper()}")
             threading.Thread(target=handle_game, args=(game_id, my_color), daemon=True).start()
 
 
-# === AUTO RUN ===
+# === FLASK KEEP-ALIVE SERVER ===
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "✅ WorstBot is running on Render!"
+
 if __name__ == "__main__":
-    main()
-    app.run(host="0.0.0.0", port=5000)
+    threading.Thread(target=main, daemon=True).start()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
