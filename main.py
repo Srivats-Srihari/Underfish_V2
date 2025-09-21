@@ -212,7 +212,7 @@ def main():
 
         if event['type'] == 'challenge':
             print("Challenge received.")
-            if event['challenge']['variant']['key'] == 'standard' or event['challenge']['variant']['key']== 'custom_position':
+            if event['challenge']['variant']['key'] == 'standard' or event['challenge']['variant']['key']== 'from_position':
                 client.bots.accept_challenge(event['challenge']['id'])
                 print(f"Accepted challenge: {event['challenge']['id']}")
             else:
